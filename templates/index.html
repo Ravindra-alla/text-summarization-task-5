@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER // AI Text Summarizer</title>
+    <!-- Google Fonts: Outfit for Headings, Inter for Body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="brand-badge">
+                <span class="pulse-dot"></span>
+                <span>AI NLP ENGINE</span>
+            </div>
+            <h1>AETHER</h1>
+            <p class="subtitle">Transform verbose documents into clear, concise summaries instantly with advanced machine learning.</p>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <div class="dashboard-grid">
+            <!-- Input Panel -->
+            <section class="panel input-panel">
+                <div class="panel-header">
+                    <h2>Input Document</h2>
+                    <div class="status-indicators">
+                        <span id="input-word-count" class="badge-pill">0 Words</span>
+                        <span id="input-char-count" class="badge-pill">0 Characters</span>
+                    </div>
+                </div>
+                
+                <div class="textarea-wrapper">
+                    <textarea id="input-text" placeholder="Paste your long text, article, or paragraph here (minimum 20 characters)..."></textarea>
+                </div>
+
+                <div class="panel-footer">
+                    <div class="helper-text">
+                        <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Max 800 words will be processed.</span>
+                    </div>
+                    <div class="actions">
+                        <button id="clear-btn" class="btn btn-secondary">
+                            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            <span>Clear</span>
+                        </button>
+                        <button id="summarize-btn" class="btn btn-primary">
+                            <svg class="btn-icon spark-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            <span>Summarize</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Output Panel -->
+            <section class="panel output-panel hidden" id="output-panel">
+                <div class="panel-header">
+                    <h2>Summary Result</h2>
+                    <button id="copy-btn" class="btn btn-copy" title="Copy to clipboard">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                        </svg>
+                        <span id="copy-text">Copy</span>
+                    </button>
+                </div>
+
+                <div class="output-card" id="summary-box">
+                    Your summary will appear here.
+                </div>
+
+                <div class="analytics-section">
+                    <h3>Summary Analytics</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon-wrapper blue">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Original Words</span>
+                                <strong id="input-words" class="metric-val">0</strong>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-icon-wrapper indigo">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Summary Words</span>
+                                <strong id="summary-words" class="metric-val">0</strong>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-icon-wrapper emerald">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Size Reduction</span>
+                                <strong id="compression-ratio" class="metric-val">0%</strong>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-icon-wrapper violet">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Duration</span>
+                                <strong id="time-taken" class="metric-val">0.000s</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Error Dialog -->
+        <div class="message-box hidden" id="error-box">
+            <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <span id="error-message">Error message details go here.</span>
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('input-text');
+        const summarizeBtn = document.getElementById('summarize-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const outputPanel = document.getElementById('output-panel');
+        const summaryBox = document.getElementById('summary-box');
+        const inputWordCount = document.getElementById('input-word-count');
+        const inputCharCount = document.getElementById('input-char-count');
+        const inputWords = document.getElementById('input-words');
+        const summaryWords = document.getElementById('summary-words');
+        const compressionRatio = document.getElementById('compression-ratio');
+        const timeTaken = document.getElementById('time-taken');
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
+        const copyBtn = document.getElementById('copy-btn');
+        const copyText = document.getElementById('copy-text');
+
+        function updateCounts() {
+            const text = inputText.value.trim();
+            const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+            inputWordCount.textContent = `${words} Word${words !== 1 ? 's' : ''}`;
+            inputCharCount.textContent = `${text.length} Character${text.length !== 1 ? 's' : ''}`;
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorBox.classList.remove('hidden');
+            errorBox.classList.add('animate-shake');
+            outputPanel.classList.add('hidden');
+            setTimeout(() => errorBox.classList.remove('animate-shake'), 500);
+        }
+
+        function hideError() {
+            errorBox.classList.add('hidden');
+        }
+
+        inputText.addEventListener('input', updateCounts);
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            updateCounts();
+            hideError();
+            outputPanel.classList.add('hidden');
+            summaryBox.textContent = 'Your summary will appear here.';
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            const textToCopy = summaryBox.textContent.trim();
+            if (!textToCopy || textToCopy === 'Your summary will appear here.') return;
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                copyText.textContent = 'Copied!';
+                copyBtn.classList.add('success');
+                setTimeout(() => {
+                    copyText.textContent = 'Copy';
+                    copyBtn.classList.remove('success');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+        });
+
+        summarizeBtn.addEventListener('click', async () => {
+            const text = inputText.value.trim();
+            hideError();
+
+            if (text.length < 20) {
+                showError('Please enter at least 20 characters to summarize.');
+                return;
+            }
+
+            summarizeBtn.disabled = true;
+            summarizeBtn.classList.add('loading');
+            summarizeBtn.querySelector('span').textContent = 'Summarizing...';
+
+            try {
+                const response = await fetch('/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Unable to summarize text.');
+                }
+
+                // Inject and animate output
+                summaryBox.textContent = data.summary;
+                inputWords.textContent = data.input_metrics.word_count;
+                summaryWords.textContent = data.summary_metrics.word_count;
+                
+                // Calculate size reduction ratio
+                const originalW = data.input_metrics.word_count;
+                const summaryW = data.summary_metrics.word_count;
+                const reduction = originalW > 0 ? Math.round(((originalW - summaryW) / originalW) * 100) : 0;
+                compressionRatio.textContent = `${reduction}%`;
+                
+                timeTaken.textContent = `${data.time_taken.toFixed(3)}s`;
+                
+                // Show output panel with a transition
+                outputPanel.classList.remove('hidden');
+                outputPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                summarizeBtn.disabled = false;
+                summarizeBtn.classList.remove('loading');
+                summarizeBtn.querySelector('span').textContent = 'Summarize';
+            }
+        });
+
+        // Initialize counts
+        updateCounts();
+    </script>
+</body>
+</html>
